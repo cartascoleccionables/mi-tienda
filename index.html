@@ -95,7 +95,7 @@
 </section>
 <section class="contenedor" id="catalogo">
   <h2>Catálogo</h2>
-  <p class="subtitulo">Álbumes y sobres de figuritas. Envío gratis comprando 10 sobres o un álbum completo.</p>
+  <p class="subtitulo">Álbumes y sobres de figuritas. Envío gratis en compras desde $40.000 o comprando 10 sobres.</p>
   <input class="buscador" id="buscador" type="text" placeholder="Buscar álbum o sobre...">
   <div class="grilla" id="grilla-productos"></div>
 </section>
@@ -145,7 +145,8 @@
           <p>Enviá un mail a <strong id="paso-email"></strong> con el asunto <strong id="paso-asunto"></strong>, estos datos y el comprobante de pago adjunto:</p>
           <pre class="datos-mail" id="datos-mail"></pre>
           <div class="acciones">
-            <a class="btn-principal" id="btn-mail" href="#">Abrir mail ya completo</a>
+            <a class="btn-principal" id="btn-gmail" href="#" target="_blank" rel="noopener">Abrir en Gmail</a>
+            <a class="btn-sec" id="btn-mail" href="#" style="text-decoration:none">Abrir en otra app de correo</a>
             <button class="btn-sec" type="button" onclick="copiarDatos(this)">Copiar datos</button>
           </div>
         </div>
@@ -178,13 +179,14 @@ const CONFIG = {
   ],
   // Reglas de envío gratis
   sobresParaEnvioGratis: 10, // Comprando esta cantidad de sobres (o más), el envío es gratis
+  montoParaEnvioGratis: 40000, // Con compras desde este monto (sin contar el envío), el envío es gratis
   provincias: ["Buenos Aires", "Ciudad Autónoma de Buenos Aires", "Catamarca", "Chaco", "Chubut", "Córdoba", "Corrientes", "Entre Ríos", "Formosa", "Jujuy", "La Pampa", "La Rioja", "Mendoza", "Misiones", "Neuquén", "Río Negro", "Salta", "San Juan", "San Luis", "Santa Cruz", "Santa Fe", "Santiago del Estero", "Tierra del Fuego", "Tucumán"]
 };
 /* ==========================================================
    PRODUCTOS (agregá, quitá o editá los que quieras)
    Para agregar uno nuevo, copiá una línea y cambiá los datos.
    - categoria: "Álbum" o "Sobre" (los sobres cuentan para el envío gratis)
-   - completo: true si es un álbum con figuritas listas para pegar (envío gratis)
+   - completo: true si es un álbum con figuritas listas para pegar
    - imagen: puede ser un emoji o la dirección de una foto (ej: "fotos/album-bts.jpg")
    ⚠️ Fórmula 1 2025: precios provisorios.
    ========================================================== */
@@ -330,8 +332,7 @@ function contarSobres() {
   }, 0);
 }
 function tieneEnvioGratis() {
-  const tieneCompleto = carrito.some(c => PRODUCTOS.find(x => x.id === c.id).completo);
-  return tieneCompleto || contarSobres() >= CONFIG.sobresParaEnvioGratis;
+  return calcularSubtotal() >= CONFIG.montoParaEnvioGratis || contarSobres() >= CONFIG.sobresParaEnvioGratis;
 }
 function costoEnvio() {
   if (tieneEnvioGratis()) return 0;
@@ -351,8 +352,9 @@ function actualizarTotales() {
     nota.textContent = "🎉 ¡Tu pedido tiene envío gratis!";
   } else {
     const faltan = CONFIG.sobresParaEnvioGratis - contarSobres();
+    const faltaMonto = CONFIG.montoParaEnvioGratis - calcularSubtotal();
     nota.className = "nota-envio";
-    nota.textContent = `Agregá ${faltan} sobre${faltan === 1 ? "" : "s"} más o un álbum completo y el envío es gratis.`;
+    nota.textContent = `Te faltan ${formato(faltaMonto)} o ${faltan} sobre${faltan === 1 ? "" : "s"} más para tener envío gratis.`;
   }
   document.getElementById("label-direccion").textContent = sel.value == 1
     ? "Dirección de la sucursal de Correo Argentino"
@@ -423,6 +425,9 @@ function finalizarCompra(e) {
   document.getElementById("paso-email").textContent = CONFIG.emailPedidos;
   document.getElementById("paso-asunto").textContent = `"${CONFIG.asuntoMail}"`;
   document.getElementById("datos-mail").textContent = datos;
+  const cuerpoMail = datos + "\n\n(Adjunto el comprobante de pago)";
+  document.getElementById("btn-gmail").href =
+    `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(CONFIG.emailPedidos)}&su=${encodeURIComponent(CONFIG.asuntoMail)}&body=${encodeURIComponent(cuerpoMail)}`;
   document.getElementById("btn-mail").href =
     `mailto:${CONFIG.emailPedidos}?subject=${encodeURIComponent(CONFIG.asuntoMail)}&body=${encodeURIComponent(datos + "\n\n(Adjunto el comprobante de pago)")}`;
 
