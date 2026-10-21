@@ -183,6 +183,7 @@
     <form class="formulario" id="formulario" onsubmit="finalizarCompra(event)">
       <div><label for="f-nombre">Nombre y apellido</label><input required id="f-nombre" autocomplete="name"></div>
       <div><label for="f-telefono">Número de teléfono</label><input required id="f-telefono" type="tel" autocomplete="tel"></div>
+      <div><label for="f-email">Email</label><input required id="f-email" type="email" autocomplete="email" placeholder="tunombre@mail.com"></div>
       <div><label for="f-provincia">Provincia</label><select required id="f-provincia"></select></div>
       <div><label for="f-localidad">Localidad</label><input required id="f-localidad" autocomplete="address-level2"></div>
       <div class="completo"><label for="f-direccion" id="label-direccion">Dirección (calle, número, piso/depto)</label><input required id="f-direccion" autocomplete="street-address"></div>
@@ -572,6 +573,7 @@ function finalizarCompra(e) {
     numero,
     nombre: valor("f-nombre"),
     telefono: valor("f-telefono"),
+    email: valor("f-email"),
     provincia: valor("f-provincia"),
     localidad: valor("f-localidad"),
     direccion: valor("f-direccion"),
@@ -588,7 +590,8 @@ function finalizarCompra(e) {
   datos += `Localidad: ${valor("f-localidad")}\n`;
   datos += `Dirección${esSucursal ? " (sucursal de Correo Argentino)" : ""}: ${valor("f-direccion")}\n`;
   datos += `Código postal: ${valor("f-cp")}\n`;
-  datos += `Número de teléfono: ${valor("f-telefono")}\n\n`;
+  datos += `Número de teléfono: ${valor("f-telefono")}\n`;
+  datos += `Email: ${valor("f-email")}\n\n`;
   datos += `Pedido:\n`;
   productos.forEach(linea => datos += `- ${linea}\n`);
   datos += `Envío: ${envio.nombre} (${precioEnvio === 0 ? "Gratis" : formato(precioEnvio)})\n`;
