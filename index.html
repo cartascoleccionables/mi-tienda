@@ -124,6 +124,28 @@
   .datos-pago { display: grid; grid-template-columns: auto 1fr auto; gap: 8px 12px; align-items: center; background: #f3f4f6; border-radius: 8px; padding: 14px; margin: 10px 0; }
   .datos-pago .valor { font-weight: 700; overflow-wrap: anywhere; }
   .btn-copiar { background: #fff; border: 1px solid #d1d5db; border-radius: 6px; padding: 6px 10px; cursor: pointer; font-size: .85rem; font-weight: 600; }
+  .figus-panel { position: fixed; inset: 0; background: rgba(17,24,39,.55); z-index: 60; display: none; align-items: center; justify-content: center; padding: 16px; }
+  body.figus-abierto { overflow: hidden; }
+  body.figus-abierto .figus-panel { display: flex; }
+  .figus-caja { background: #fff; border-radius: 16px; width: min(860px, 100%); max-height: 100%; display: flex; flex-direction: column; overflow: hidden; }
+  .figus-cabecera { display: flex; align-items: center; gap: 14px; padding: 14px 18px; border-bottom: 1px solid #e5e7eb; }
+  .figus-cabecera img { width: 56px; height: 72px; object-fit: contain; }
+  .figus-cabecera h2 { font-size: 1.2rem; margin: 2px 0; }
+  .figus-etiqueta { font-size: .75rem; font-weight: 800; color: var(--color-acento); text-transform: uppercase; letter-spacing: .05em; }
+  .figus-cuerpo { padding: 14px 18px; overflow-y: auto; }
+  .figus-ayuda { font-size: .9rem; color: var(--color-suave); margin-bottom: 12px; }
+  .figus-grilla { display: grid; grid-template-columns: repeat(auto-fill, minmax(46px, 1fr)); gap: 6px; }
+  .figu { position: relative; height: 42px; border: 1px solid #d1d5db; background: #fff; border-radius: 8px; font-weight: 700; font-size: .9rem; cursor: pointer; color: var(--color-principal); font-family: inherit; }
+  .figu:hover { border-color: var(--color-acento); }
+  .figu.elegida { background: var(--color-acento); border-color: var(--color-acento); color: #fff; }
+  .figu-x { position: absolute; top: -7px; right: -7px; background: var(--color-principal); color: #fff; font-size: .65rem; border-radius: 999px; padding: 1px 5px; }
+  .figus-sub { font-size: 1rem; margin: 18px 0 8px; }
+  .figus-lista { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip-figu { display: flex; align-items: center; gap: 6px; border: 1px solid #e5e7eb; border-radius: 999px; padding: 4px 6px 4px 12px; font-size: .9rem; }
+  .chip-figu button { width: 26px; height: 26px; border-radius: 50%; border: 1px solid #d1d5db; background: #fff; cursor: pointer; font-weight: 700; }
+  .figus-pie { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 12px 18px; border-top: 1px solid #e5e7eb; flex-wrap: wrap; }
+  .nums-carrito { font-size: .8rem; color: var(--color-suave); margin-top: 2px; overflow-wrap: anywhere; }
+  @media (max-width: 620px) { .figus-panel { padding: 0; } .figus-caja { border-radius: 0; height: 100%; } }
   footer { background: var(--color-principal); color: #d1d5db; text-align: center; padding: 30px 20px; margin-top: 60px; }
   @media (max-width: 600px) { .formulario { grid-template-columns: 1fr; } nav a { margin-left: 10px; } }
 </style>
@@ -219,6 +241,32 @@
     </div>
   </div>
 </section>
+<div class="figus-panel" id="figus-panel" role="dialog" aria-modal="true" aria-labelledby="figus-titulo">
+  <div class="figus-caja">
+    <div class="figus-cabecera">
+      <img id="figus-img" alt="">
+      <div style="flex:1;min-width:0">
+        <div class="figus-etiqueta">Completá tu álbum</div>
+        <h2 id="figus-titulo"></h2>
+        <div id="figus-info" class="subtitulo" style="margin:0"></div>
+      </div>
+      <button class="cerrar-menu" type="button" onclick="cerrarFigus()" aria-label="Cerrar">×</button>
+    </div>
+    <div class="figus-cuerpo">
+      <p class="figus-ayuda">Tocá los números que te faltan para elegirlos; tocá de nuevo para sacarlos. Si necesitás más de una del mismo número (por ejemplo, para dos álbumes), usá el <strong>+</strong> en "Tu selección".</p>
+      <div class="figus-grilla" id="figus-grilla"></div>
+      <h3 class="figus-sub">Tu selección</h3>
+      <div class="figus-lista" id="figus-lista"></div>
+    </div>
+    <div class="figus-pie">
+      <div id="figus-resumen" style="font-weight:800"></div>
+      <div style="display:flex;gap:8px">
+        <button class="btn-sec" id="btn-vaciar-figus" type="button" onclick="vaciarFigus()">Vaciar</button>
+        <button class="btn-principal" type="button" onclick="cerrarFigus()">Listo</button>
+      </div>
+    </div>
+  </div>
+</div>
 <footer>
   <div class="redes"><a class="red-ig" data-red="ig" href="#" target="_blank" rel="noopener" aria-label="Instagram de Cartas Coleccionables"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.2c3.2 0 3.6 0 4.8.1 1.2.1 1.8.2 2.2.4.6.2 1 .5 1.4.9.4.4.7.8.9 1.4.2.4.4 1 .4 2.2.1 1.3.1 1.6.1 4.8s0 3.6-.1 4.8c-.1 1.2-.2 1.8-.4 2.2-.2.6-.5 1-.9 1.4-.4.4-.8.7-1.4.9-.4.2-1 .4-2.2.4-1.3.1-1.6.1-4.8.1s-3.6 0-4.8-.1c-1.2-.1-1.8-.2-2.2-.4-.6-.2-1-.5-1.4-.9-.4-.4-.7-.8-.9-1.4-.2-.4-.4-1-.4-2.2C2.2 15.6 2.2 15.2 2.2 12s0-3.6.1-4.8c.1-1.2.2-1.8.4-2.2.2-.6.5-1 .9-1.4.4-.4.8-.7 1.4-.9.4-.2 1-.4 2.2-.4C8.4 2.2 8.8 2.2 12 2.2zm0 2.1c-3.1 0-3.5 0-4.7.1-1.1.1-1.7.2-2.1.4-.5.2-.9.4-1.3.8-.4.4-.6.8-.8 1.3-.2.4-.3 1-.4 2.1-.1 1.2-.1 1.6-.1 4.7s0 3.5.1 4.7c.1 1.1.2 1.7.4 2.1.2.5.4.9.8 1.3.4.4.8.6 1.3.8.4.2 1 .3 2.1.4 1.2.1 1.6.1 4.7.1s3.5 0 4.7-.1c1.1-.1 1.7-.2 2.1-.4.5-.2.9-.4 1.3-.8.4-.4.6-.8.8-1.3.2-.4.3-1 .4-2.1.1-1.2.1-1.6.1-4.7s0-3.5-.1-4.7c-.1-1.1-.2-1.7-.4-2.1-.2-.5-.4-.9-.8-1.3-.4-.4-.8-.6-1.3-.8-.4-.2-1-.3-2.1-.4-1.2-.1-1.6-.1-4.7-.1zm0 3.6a4.1 4.1 0 1 1 0 8.2 4.1 4.1 0 0 1 0-8.2zm0 6.8a2.7 2.7 0 1 0 0-5.4 2.7 2.7 0 0 0 0 5.4zm5.2-7a1 1 0 1 1-1.9 0 1 1 0 0 1 1.9 0z"/></svg></a><a class="red-fb" data-red="fb" href="#" target="_blank" rel="noopener" aria-label="Facebook de Cartas Coleccionables"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.5 21.9v-7.4H16l.4-2.9h-2.9V9.8c0-.8.2-1.4 1.4-1.4h1.5V5.8c-.3 0-1.2-.1-2.2-.1-2.2 0-3.7 1.3-3.7 3.8v2.1H8v2.9h2.5v7.4h3z"/></svg></a></div>
   <p id="footer-texto">© Cartas Coleccionables · Todos los derechos reservados</p>
@@ -395,8 +443,35 @@ const PRODUCTOS = [
   { id: 75, nombre: "Combo Mazo Stumble Guys 7 + 20 sobres", descripcion: "Mazo + 20 sobres de cartas.", precio: 22500, imagen: IMG.mazo_sg7, combo: { extra: IMG.sobre_sg7, texto: "+20 sobres" }, armado: { base: 41, sobre: 49, cantidad: 20 }, categoria: "Combo" },
   { id: 76, nombre: "Combo Mazo Stumble Guys 8 + 20 sobres", descripcion: "Mazo + 20 sobres de cartas.", precio: 22500, imagen: IMG.mazo_sg8, combo: { extra: IMG.sobre_sg8, texto: "+20 sobres" }, armado: { base: 42, sobre: 50, cantidad: 20 }, categoria: "Combo" },
   { id: 77, nombre: "Combo Mazo Fórmula 1 + 20 sobres", descripcion: "Mazo + 20 sobres de cartas.", precio: 22500, imagen: IMG.mazo_f1, combo: { extra: IMG.sobre_cartas_f1, texto: "+20 sobres" }, armado: { base: 79, sobre: 80, cantidad: 20 }, categoria: "Combo" },
-  { id: 78, nombre: "Combo 10 sobres Photocards BTS", descripcion: "10 sobres de photocards.", precio: 36000, imagen: IMG.photocards, combo: { texto: "x10 sobres" }, armado: { base: null, sobre: 11, cantidad: 10 }, categoria: "Combo" }
+  { id: 78, nombre: "Combo 10 sobres Photocards BTS", descripcion: "10 sobres de photocards.", precio: 36000, imagen: IMG.photocards, combo: { texto: "x10 sobres" }, armado: { base: null, sobre: 11, cantidad: 10 }, categoria: "Combo" },
+  { id: 81, nombre: "Combo Álbum K-Pop #2 + 10 sobres", descripcion: "Álbum + 10 sobres de figuritas.", precio: 34200, imagen: IMG.kpop2, combo: { extra: IMG.sobre_kpop2, texto: "+10 sobres" }, armado: { base: 2, sobre: 13, cantidad: 10 }, categoria: "Combo" },
+  { id: 82, nombre: "Combo Álbum K-Pop #1 + 10 sobres", descripcion: "Álbum + 10 sobres de figuritas.", precio: 28800, imagen: IMG.kpop1, combo: { extra: IMG.sobre_kpop1, texto: "+10 sobres" }, armado: { base: 1, sobre: 12, cantidad: 10 }, categoria: "Combo" },
+  { id: 83, nombre: "Combo Álbum Fórmula 1 2026 + 10 sobres", descripcion: "Álbum + 10 sobres de figuritas.", precio: 28800, imagen: IMG.f1, combo: { extra: IMG.sobre_f1_26, texto: "+10 sobres" }, armado: { base: 3, sobre: 14, cantidad: 10 }, categoria: "Combo" },
+  { id: 84, nombre: "Combo Álbum Fórmula 1 2025 + 10 sobres", descripcion: "Álbum + 10 sobres de figuritas.", precio: 28800, imagen: IMG.album_f1_25, combo: { extra: IMG.sobre_f1_25, texto: "+10 sobres" }, armado: { base: 4, sobre: 15, cantidad: 10 }, categoria: "Combo" },
+  { id: 85, nombre: "Combo Álbum BTS + 10 sobres", descripcion: "Álbum + 10 sobres de figuritas.", precio: 28800, imagen: IMG.bts, combo: { extra: IMG.sobre_bts, texto: "+10 sobres" }, armado: { base: 5, sobre: 16, cantidad: 10 }, categoria: "Combo" },
+  { id: 86, nombre: "Combo Álbum Stranger Things + 10 sobres", descripcion: "Álbum + 10 sobres de figuritas.", precio: 34200, imagen: IMG.stranger, combo: { extra: IMG.sobre_stranger, texto: "+10 sobres" }, armado: { base: 7, sobre: 17, cantidad: 10 }, categoria: "Combo" },
+  { id: 87, nombre: "Combo Álbum Stray Kids + 10 sobres", descripcion: "Álbum + 10 sobres de figuritas.", precio: 34200, imagen: IMG.straykids, combo: { extra: IMG.sobre_straykids, texto: "+10 sobres" }, armado: { base: 8, sobre: 18, cantidad: 10 }, categoria: "Combo" },
+  { id: 88, nombre: "Combo Álbum Pokémon 30 Aniversario + 10 sobres", descripcion: "Álbum + 10 sobres de figuritas.", precio: 34200, imagen: IMG.pokemon, combo: { extra: IMG.sobre_pokemon, texto: "+10 sobres" }, armado: { base: 10, sobre: 19, cantidad: 10 }, categoria: "Combo" },
+  { id: 89, nombre: "Combo Álbum Italian Brainrot \"Multiverso\" + 10 sobres", descripcion: "Álbum + 10 sobres de figuritas.", precio: 27900, imagen: IMG.album_multiverso, combo: { extra: IMG.sobre_multiverso, texto: "+10 sobres" }, armado: { base: 21, sobre: 33, cantidad: 10 }, categoria: "Combo" },
+  { id: 90, nombre: "Combo Álbum Stumble Guys + 10 sobres", descripcion: "Álbum + 10 sobres de figuritas.", precio: 27900, imagen: IMG.album_stumble, combo: { extra: IMG.sobre_stumble, texto: "+10 sobres" }, armado: { base: 22, sobre: 34, cantidad: 10 }, categoria: "Combo" }
 ];
+/* "Completá tu álbum": álbum, sobre (de ahí sale el precio de cada figurita) y cantidad de figuritas */
+const ALBUMES_FIGUS = [
+  { album: 10, sobre: 19, total: 243 },  // Pokémon 30 Aniversario
+  { album: 8,  sobre: 18, total: 162 },  // Stray Kids
+  { album: 2,  sobre: 13, total: 162 },  // K-Pop #2
+  { album: 3,  sobre: 14, total: 162 },  // Fórmula 1 2026
+  { album: 5,  sobre: 16, total: 162 },  // BTS
+  { album: 1,  sobre: 12, total: 180 },  // K-Pop #1
+  { album: 21, sobre: 33, total: 210 },  // Italian Brainrot "Multiverso"
+  { album: 22, sobre: 34, total: 180 },  // Stumble Guys
+  { album: 4,  sobre: 15, total: 180 }   // Fórmula 1 2025
+];
+ALBUMES_FIGUS.forEach(a => {
+  const alb = PRODUCTOS.find(x => x.id === a.album);
+  a.id = 1000 + a.album;
+  PRODUCTOS.push({ id: a.id, nombre: "Figuritas sueltas " + alb.nombre.replace(/^Álbum /, "").replace(/ \+ póster$/, ""), descripcion: "", precio: PRODUCTOS.find(x => x.id === a.sobre).precio, imagen: alb.imagen, categoria: "Figuritas", figus: a });
+});
 /* Precio de los combos: se calcula solo (producto + sobres) con el descuento de CONFIG.descuentoCombos */
 PRODUCTOS.forEach(p => {
   if (!p.armado) return;
@@ -443,11 +518,11 @@ function renderProductos(lista) {
         ${imagenTarjeta(p)}
       </div>
       <div class="info">
-        <span class="etiqueta">${p.completo ? "Álbum completo · envío gratis" : p.categoria}</span>
+        <span class="etiqueta">${p.completo ? "Álbum completo · envío gratis" : p.figus ? "Completá tu álbum" : p.categoria}</span>
         <div class="nombre">${p.nombre}</div>
-        <div class="descripcion">${p.descripcion}</div>
-        <div class="precio">${p.precioLista ? `<span class="precio-lista">${formato(p.precioLista)}</span> ` : ""}${formato(p.precio)}${p.precioLista ? ` <span class="ahorro">-${CONFIG.descuentoCombos}%</span>` : ""}</div>
-        <button class="btn-agregar" onclick="agregar(${p.id})">Agregar al carrito</button>
+        <div class="descripcion">${p.figus ? `${p.figus.total} figuritas. Elegí las que te faltan, ${formato(p.precio)} cada una.${cantidadFigus(p.id) ? ` <strong>Tenés ${cantidadFigus(p.id)} en el carrito.</strong>` : ""}` : p.descripcion}</div>
+        <div class="precio">${p.figus ? `<span style="font-size:.85rem;font-weight:600;color:var(--color-suave)">c/u </span>` : ""}${p.precioLista ? `<span class="precio-lista">${formato(p.precioLista)}</span> ` : ""}${formato(p.precio)}${p.precioLista ? ` <span class="ahorro">-${CONFIG.descuentoCombos}%</span>` : ""}</div>
+        ${p.figus ? `<button class="btn-agregar" onclick="abrirFigus(${p.id})">Elegir figuritas</button>` : `<button class="btn-agregar" onclick="agregar(${p.id})">Agregar al carrito</button>`}
       </div>
     </div>`).join("") || `<p class="vacio">No se encontraron productos.</p>`;
 }
@@ -469,6 +544,76 @@ function cambiarCantidad(id, delta) {
   if (item.cantidad <= 0) carrito = carrito.filter(c => c.id !== id);
   guardar(); actualizarCarrito();
 }
+/* ===== Completá tu álbum ===== */
+let figusAbierto = null;
+function cantidadFigus(id) { const c = carrito.find(x => x.id === id); return c ? c.cantidad : 0; }
+function textoNumeros(numeros) {
+  return Object.keys(numeros).map(Number).sort((a, b) => a - b)
+    .map(n => numeros[n] > 1 ? `${n} (x${numeros[n]})` : `${n}`).join(", ");
+}
+function itemFigus(id) {
+  let item = carrito.find(c => c.id === id);
+  if (!item) { item = { id, cantidad: 0, numeros: {} }; carrito.push(item); }
+  return item;
+}
+function guardarFigus(item) {
+  item.cantidad = Object.values(item.numeros).reduce((s, n) => s + n, 0);
+  if (item.cantidad === 0) carrito = carrito.filter(c => c !== item);
+  guardar(); actualizarCarrito(); dibujarFigus();
+}
+function abrirFigus(id) {
+  figusAbierto = id;
+  document.body.classList.add("figus-abierto");
+  dibujarFigus();
+}
+function cerrarFigus() {
+  figusAbierto = null;
+  document.body.classList.remove("figus-abierto");
+  filtrarCatalogo();
+}
+function tocarFigu(n) {
+  const item = itemFigus(figusAbierto);
+  if (item.numeros[n]) delete item.numeros[n]; else item.numeros[n] = 1;
+  guardarFigus(item);
+}
+function sumarFigu(n, delta) {
+  const item = itemFigus(figusAbierto);
+  item.numeros[n] = (item.numeros[n] || 0) + delta;
+  if (item.numeros[n] <= 0) delete item.numeros[n];
+  guardarFigus(item);
+}
+function vaciarFigus() {
+  if (!confirm("¿Borrar todas las figuritas elegidas de este álbum?")) return;
+  const item = itemFigus(figusAbierto);
+  item.numeros = {};
+  guardarFigus(item);
+}
+function dibujarFigus() {
+  if (!figusAbierto) return;
+  const p = PRODUCTOS.find(x => x.id === figusAbierto);
+  const item = carrito.find(c => c.id === figusAbierto);
+  const nums = item ? item.numeros : {};
+  const elegidas = Object.keys(nums).map(Number).sort((a, b) => a - b);
+  const total = elegidas.reduce((s, n) => s + nums[n], 0);
+  document.getElementById("figus-titulo").textContent = p.nombre.replace("Figuritas sueltas ", "");
+  document.getElementById("figus-img").src = p.imagen;
+  document.getElementById("figus-info").textContent = `${p.figus.total} figuritas · ${formato(p.precio)} cada una`;
+  let grilla = "";
+  for (let n = 1; n <= p.figus.total; n++) {
+    grilla += `<button type="button" class="figu${nums[n] ? " elegida" : ""}" onclick="tocarFigu(${n})">${n}${nums[n] > 1 ? `<span class="figu-x">x${nums[n]}</span>` : ""}</button>`;
+  }
+  document.getElementById("figus-grilla").innerHTML = grilla;
+  document.getElementById("figus-lista").innerHTML = elegidas.length
+    ? elegidas.map(n => `<div class="chip-figu"><strong>N° ${n}</strong>
+        <button type="button" onclick="sumarFigu(${n}, -1)" aria-label="Una menos">−</button>
+        <span>${nums[n]}</span>
+        <button type="button" onclick="sumarFigu(${n}, 1)" aria-label="Una más">+</button></div>`).join("")
+    : `<p class="vacio" style="padding:8px 0">Todavía no elegiste ninguna. Tocá los números que te faltan.</p>`;
+  document.getElementById("figus-resumen").textContent = total
+    ? `${total} figurita${total === 1 ? "" : "s"} · ${formato(total * p.precio)}`
+    : "Ninguna elegida";
+  document.getElementById("btn-vaciar-figus").style.display = total ? "inline-block" : "none";
+}
 function quitar(id) { carrito = carrito.filter(c => c.id !== id); guardar(); actualizarCarrito(); }
 function actualizarCarrito() {
   const lista = document.getElementById("lista-carrito");
@@ -487,12 +632,12 @@ function actualizarCarrito() {
     return `
       <div class="fila-item">
         <div class="emoji">${p.imagen.includes(".") || p.imagen.includes("/") ? `<img src="${p.imagen}" alt="" style="width:44px;height:56px;object-fit:cover;border-radius:4px">` : p.imagen}</div>
-        <div class="datos"><div class="nombre">${p.nombre}</div><div>${formato(p.precio)} c/u</div></div>
-        <div class="cantidad">
+        <div class="datos"><div class="nombre">${p.nombre}</div><div>${formato(p.precio)} c/u</div>${c.numeros ? `<div class="nums-carrito">N° ${textoNumeros(c.numeros)}</div>` : ""}</div>
+        ${c.numeros ? `<div class="cantidad"><button style="width:auto;padding:0 10px" onclick="abrirFigus(${p.id})">Editar (${c.cantidad})</button></div>` : `<div class="cantidad">
           <button onclick="cambiarCantidad(${p.id}, -1)">−</button>
           <span>${c.cantidad}</span>
           <button onclick="cambiarCantidad(${p.id}, 1)">+</button>
-        </div>
+        </div>`}
         <div style="min-width:90px;text-align:right;font-weight:700">${formato(p.precio * c.cantidad)}</div>
         <button class="quitar" onclick="quitar(${p.id})">Quitar</button>
       </div>`;
@@ -567,7 +712,7 @@ function finalizarCompra(e) {
     String(hoy.getDate()).padStart(2, "0") + "-" + Math.floor(1000 + Math.random() * 9000);
   const productos = carrito.map(c => {
     const p = PRODUCTOS.find(x => x.id === c.id);
-    return `${c.cantidad} x ${p.nombre} = ${formato(p.precio * c.cantidad)}`;
+    return `${c.cantidad} x ${p.nombre}${c.numeros ? ` (N° ${textoNumeros(c.numeros)})` : ""} = ${formato(p.precio * c.cantidad)}`;
   });
   guardarEnPlanilla({
     numero,
@@ -646,12 +791,13 @@ function nuevaCompra() {
   irA("catalogo");
 }
 const SECCIONES = [
-  { id: "todos", nombre: "Todos los productos", icono: "🗂️", filtro: p => true },
+  { id: "todos", nombre: "Todos los productos", icono: "🗂️", filtro: p => p.categoria !== "Figuritas" },
   { id: "albumes", nombre: "Álbumes", icono: "📒", filtro: p => p.categoria === "Álbum" && !p.completo },
   { id: "completos", nombre: "Álbumes completos", icono: "⭐", filtro: p => p.completo, detalle: "Con todas las figuritas listas para pegar" },
   { id: "mazos", nombre: "Mazos", icono: "🃏", filtro: p => p.categoria === "Mazo" },
   { id: "sobres", nombre: "Sobres", icono: "✉️", filtro: p => p.categoria === "Sobre" },
-  { id: "combos", nombre: "Combos", icono: "🎁", filtro: p => p.categoria === "Combo" }
+  { id: "combos", nombre: "Combos", icono: "🎁", filtro: p => p.categoria === "Combo" },
+  { id: "completa", nombre: "Completá tu álbum", icono: "🧩", filtro: p => p.categoria === "Figuritas" }
 ];
 /* Orden de los productos en todas las secciones (de arriba hacia abajo, por id). Lo que no está en la lista va al final. */
 const ORDEN_TODOS = [20, 10, 19, 8, 18, 11, 7, 17, 2, 13, 23, 28, 3, 14, 5, 16, 6, 24, 29, 9, 51, 52, 1, 12, 25, 30, 21, 33, 26, 31, 27, 32, 22, 34, 4, 15, 79, 80, 42, 50, 41, 49, 40, 48, 39, 47, 38, 46, 37, 45, 36, 44, 35, 43];
@@ -663,7 +809,7 @@ function filtrarCatalogo() {
   {
     const pos = id => { const i = ORDEN_TODOS.indexOf(id); return i === -1 ? ORDEN_TODOS.length + PRODUCTOS.findIndex(x => x.id === id) : i; };
     // los combos van al final y siguen el mismo orden que su álbum o mazo
-    const clave = p => p.armado ? 10000 + pos(p.armado.base || p.armado.sobre) : pos(p.id);
+    const clave = p => p.armado ? 10000 + pos(p.armado.base || p.armado.sobre) + p.armado.cantidad / 1000 : pos(p.id);
     lista = lista.slice().sort((a, b) => clave(a) - clave(b));
   }
   renderProductos(lista);
@@ -679,7 +825,7 @@ function verSeccion(id) {
 }
 function abrirMenu() { document.body.classList.add("menu-abierto"); }
 function cerrarMenu() { document.body.classList.remove("menu-abierto"); }
-document.addEventListener("keydown", e => { if (e.key === "Escape") cerrarMenu(); });
+document.addEventListener("keydown", e => { if (e.key === "Escape") { cerrarMenu(); if (figusAbierto) cerrarFigus(); } });
 document.getElementById("menu-categorias").innerHTML = SECCIONES.map(sec =>
   `<button class="opcion" type="button" data-seccion="${sec.id}" onclick="verSeccion('${sec.id}')">${sec.icono} ${sec.nombre}<span class="cuenta">${PRODUCTOS.filter(sec.filtro).length}</span></button>`).join("");
 document.getElementById("pestanas").innerHTML = SECCIONES.map(sec =>
