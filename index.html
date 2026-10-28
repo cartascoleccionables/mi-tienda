@@ -139,6 +139,9 @@
   .figu:hover { border-color: var(--color-acento); }
   .figu.elegida { background: var(--color-acento); border-color: var(--color-acento); color: #fff; }
   .figu-x { position: absolute; top: -7px; right: -7px; background: var(--color-principal); color: #fff; font-size: .65rem; border-radius: 999px; padding: 1px 5px; }
+  .figu.bloqueada { opacity: .35; cursor: not-allowed; }
+  .chip-figu button:disabled { opacity: .35; cursor: not-allowed; }
+  .figus-aviso { display: none; background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; border-radius: 8px; padding: 10px 12px; font-size: .9rem; font-weight: 600; margin: 0 18px 8px; }
   .figus-sub { font-size: 1rem; margin: 18px 0 8px; }
   .figus-lista { display: flex; flex-wrap: wrap; gap: 8px; }
   .chip-figu { display: flex; align-items: center; gap: 6px; border: 1px solid #e5e7eb; border-radius: 999px; padding: 4px 6px 4px 12px; font-size: .9rem; }
@@ -253,11 +256,12 @@
       <button class="cerrar-menu" type="button" onclick="cerrarFigus()" aria-label="Cerrar">×</button>
     </div>
     <div class="figus-cuerpo">
-      <p class="figus-ayuda">Tocá los números que te faltan para elegirlos; tocá de nuevo para sacarlos. Si necesitás más de una del mismo número (por ejemplo, para dos álbumes), usá el <strong>+</strong> en "Tu selección".</p>
+      <p class="figus-ayuda">Tocá los números que te faltan para elegirlos; tocá de nuevo para sacarlos. Si necesitás más de una del mismo número (por ejemplo, para dos álbumes), usá el <strong>+</strong> en "Tu selección". <strong>Podés elegir hasta <span id="figus-max"></span> figuritas por álbum.</strong></p>
       <div class="figus-grilla" id="figus-grilla"></div>
       <h3 class="figus-sub">Tu selección</h3>
       <div class="figus-lista" id="figus-lista"></div>
     </div>
+    <div class="figus-aviso" id="figus-aviso" role="alert">Llegaste al máximo de figuritas para este álbum. Para elegir otra, sacá alguna de las que ya marcaste.</div>
     <div class="figus-pie">
       <div id="figus-resumen" style="font-weight:800"></div>
       <div style="display:flex;gap:8px">
@@ -291,6 +295,7 @@ const CONFIG = {
     { nombre: "Envío a sucursal de Correo Argentino", precio: 8000 }
   ],
   // Reglas de envío gratis
+  maxFigusPorAlbum: 20, // máximo de figuritas sueltas por álbum en un pedido
   descuentoCombos: 15, // % de descuento de los combos sobre el precio de comprar todo por separado
   instagram: "https://www.instagram.com/cartas.coleccionables?mdxt=ZHcyd295aWdpY2Fi",
   facebook: "https://www.facebook.com/share/1CHtUzUgVU/?mibextid=wwXIfr",
@@ -520,7 +525,7 @@ function renderProductos(lista) {
       <div class="info">
         <span class="etiqueta">${p.completo ? "Álbum completo · envío gratis" : p.figus ? "Completá tu álbum" : p.categoria}</span>
         <div class="nombre">${p.nombre}</div>
-        <div class="descripcion">${p.figus ? `${p.figus.total} figuritas. Elegí las que te faltan, ${formato(p.precio)} cada una.${cantidadFigus(p.id) ? ` <strong>Tenés ${cantidadFigus(p.id)} en el carrito.</strong>` : ""}` : p.descripcion}</div>
+        <div class="descripcion">${p.figus ? `${p.figus.total} figuritas. Elegí las que te faltan (hasta ${CONFIG.maxFigusPorAlbum}), ${formato(p.precio)} cada una.${cantidadFigus(p.id) ? ` <strong>Tenés ${cantidadFigus(p.id)} en el carrito.</strong>` : ""}` : p.descripcion}</div>
         <div class="precio">${p.figus ? `<span style="font-size:.85rem;font-weight:600;color:var(--color-suave)">c/u </span>` : ""}${p.precioLista ? `<span class="precio-lista">${formato(p.precioLista)}</span> ` : ""}${formato(p.precio)}${p.precioLista ? ` <span class="ahorro">-${CONFIG.descuentoCombos}%</span>` : ""}</div>
         ${p.figus ? `<button class="btn-agregar" onclick="abrirFigus(${p.id})">Elegir figuritas</button>` : `<button class="btn-agregar" onclick="agregar(${p.id})">Agregar al carrito</button>`}
       </div>
@@ -571,13 +576,21 @@ function cerrarFigus() {
   document.body.classList.remove("figus-abierto");
   filtrarCatalogo();
 }
+function totalFigus(item) { return Object.values(item.numeros).reduce((s, n) => s + n, 0); }
+function avisoMaximo() {
+  const aviso = document.getElementById("figus-aviso");
+  aviso.style.display = "block";
+  clearTimeout(aviso._t); aviso._t = setTimeout(() => aviso.style.display = "none", 3000);
+}
 function tocarFigu(n) {
   const item = itemFigus(figusAbierto);
+  if (!item.numeros[n] && totalFigus(item) >= CONFIG.maxFigusPorAlbum) { avisoMaximo(); return; }
   if (item.numeros[n]) delete item.numeros[n]; else item.numeros[n] = 1;
   guardarFigus(item);
 }
 function sumarFigu(n, delta) {
   const item = itemFigus(figusAbierto);
+  if (delta > 0 && totalFigus(item) >= CONFIG.maxFigusPorAlbum) { avisoMaximo(); return; }
   item.numeros[n] = (item.numeros[n] || 0) + delta;
   if (item.numeros[n] <= 0) delete item.numeros[n];
   guardarFigus(item);
@@ -595,23 +608,25 @@ function dibujarFigus() {
   const nums = item ? item.numeros : {};
   const elegidas = Object.keys(nums).map(Number).sort((a, b) => a - b);
   const total = elegidas.reduce((s, n) => s + nums[n], 0);
+  const lleno = total >= CONFIG.maxFigusPorAlbum;
+  document.getElementById("figus-max").textContent = CONFIG.maxFigusPorAlbum;
   document.getElementById("figus-titulo").textContent = p.nombre.replace("Figuritas sueltas ", "");
   document.getElementById("figus-img").src = p.imagen;
   document.getElementById("figus-info").textContent = `${p.figus.total} figuritas · ${formato(p.precio)} cada una`;
   let grilla = "";
   for (let n = 1; n <= p.figus.total; n++) {
-    grilla += `<button type="button" class="figu${nums[n] ? " elegida" : ""}" onclick="tocarFigu(${n})">${n}${nums[n] > 1 ? `<span class="figu-x">x${nums[n]}</span>` : ""}</button>`;
+    grilla += `<button type="button" class="figu${nums[n] ? " elegida" : lleno ? " bloqueada" : ""}" onclick="tocarFigu(${n})">${n}${nums[n] > 1 ? `<span class="figu-x">x${nums[n]}</span>` : ""}</button>`;
   }
   document.getElementById("figus-grilla").innerHTML = grilla;
   document.getElementById("figus-lista").innerHTML = elegidas.length
     ? elegidas.map(n => `<div class="chip-figu"><strong>N° ${n}</strong>
         <button type="button" onclick="sumarFigu(${n}, -1)" aria-label="Una menos">−</button>
         <span>${nums[n]}</span>
-        <button type="button" onclick="sumarFigu(${n}, 1)" aria-label="Una más">+</button></div>`).join("")
+        <button type="button" onclick="sumarFigu(${n}, 1)" aria-label="Una más"${lleno ? " disabled" : ""}>+</button></div>`).join("")
     : `<p class="vacio" style="padding:8px 0">Todavía no elegiste ninguna. Tocá los números que te faltan.</p>`;
   document.getElementById("figus-resumen").textContent = total
-    ? `${total} figurita${total === 1 ? "" : "s"} · ${formato(total * p.precio)}`
-    : "Ninguna elegida";
+    ? `${total} de ${CONFIG.maxFigusPorAlbum} figuritas · ${formato(total * p.precio)}`
+    : `Ninguna elegida (máximo ${CONFIG.maxFigusPorAlbum})`;
   document.getElementById("btn-vaciar-figus").style.display = total ? "inline-block" : "none";
 }
 function quitar(id) { carrito = carrito.filter(c => c.id !== id); guardar(); actualizarCarrito(); }
