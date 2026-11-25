@@ -66,6 +66,13 @@
   .pestanas { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; }
   .pestana { background: #fff; border: 1px solid #d1d5db; border-radius: 999px; padding: 8px 14px; font-weight: 600; cursor: pointer; font-size: .92rem; font-family: inherit; color: var(--color-principal); }
   .pestana.activa { background: var(--color-principal); color: #fff; border-color: var(--color-principal); }
+  .pestana-colec { position: relative; overflow: hidden; display: inline-flex; align-items: center; gap: 6px; text-decoration: none; border: none; padding: 9px 16px; border-radius: 999px; font-weight: 800; font-size: .92rem; color: #3b2300; background: linear-gradient(135deg, #fde68a, #f59e0b 45%, #fbbf24 70%, #fde68a); box-shadow: 0 0 0 2px #f59e0b55, 0 4px 14px rgba(245,158,11,.55); animation: brilloColec 2.2s ease-in-out infinite; }
+  .pestana-colec::after { content: ""; position: absolute; top: 0; left: -60%; width: 40%; height: 100%; background: linear-gradient(100deg, transparent, rgba(255,255,255,.85), transparent); transform: skewX(-20deg); animation: destelloColec 2.6s ease-in-out infinite; }
+  .pestana-colec:hover { transform: translateY(-1px); box-shadow: 0 0 0 3px #f59e0b88, 0 6px 20px rgba(245,158,11,.7); }
+  .pestana-colec:focus-visible { outline: 3px solid var(--color-acento); outline-offset: 3px; }
+  @keyframes brilloColec { 0%, 100% { box-shadow: 0 0 0 2px #f59e0b55, 0 4px 14px rgba(245,158,11,.45); } 50% { box-shadow: 0 0 0 4px #f59e0b33, 0 4px 22px rgba(245,158,11,.85); } }
+  @keyframes destelloColec { 0% { left: -60%; } 60%, 100% { left: 130%; } }
+  @media (prefers-reduced-motion: reduce) { .pestana-colec, .pestana-colec::after { animation: none; } }
   .tarjeta { background: #fff; border-radius: 14px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,.06); display: flex; flex-direction: column; transition: transform .2s; }
   .tarjeta:hover { transform: translateY(-4px); }
   .combo-img { position: relative; width: 100%; height: 100%; }
@@ -296,7 +303,7 @@
 </div>
 <button class="nube-dist" type="button" onclick="abrirDist()" aria-label="¿Querés distribuir nuestros productos? Escribinos">
   <svg viewBox="0 0 240 150" aria-hidden="true"><path fill="#fff" stroke="#e11d48" stroke-width="4" d="M58 132 C24 132 8 110 14 88 C19 69 37 60 52 63 C55 36 79 20 104 26 C118 8 150 6 168 26 C190 22 212 38 212 62 C232 68 238 92 226 110 C218 124 204 132 186 132 Z"/></svg>
-  <span class="nube-texto">¿Querés distribuir<br>nuestros productos?<small>Escribinos ✉️</small></span>
+  <span class="nube-texto">¿Querés distribuir<br>nuestros productos?<small>Escribinos →</small></span>
 </button>
 <div class="dist-panel" id="dist-panel" role="dialog" aria-modal="true" aria-labelledby="dist-titulo" onclick="if(event.target===this) cerrarDist()">
   <div class="dist-caja">
@@ -345,6 +352,7 @@ const CONFIG = {
   cvuMercadoPago: "0000003100099891651619", // CVU de Mercado Pago
   urlPlanillaPedidos: "https://script.google.com/macros/s/AKfycbybphsTocFZ0fYOs2lRRlyrQ-tnko0mb5dcONFyWp5duq1rwrOAGV3QB72d1z8Nwqup2Q/exec", // Pegá acá la URL de tu Google Apps Script (termina en /exec) para guardar cada pedido en tu planilla
   emailPedidos: "cc.coleccioncompleta@gmail.com",
+  linkColeccionistas: "https://mitienda0.github.io/elbauldelasfigus/", // Botón dorado "Coleccionistas"
   emailDistribuidores: "coleccionescartas@gmail.com", // Mail donde llegan los pedidos de distribuidores
   asuntoDistribuidores: "QUIERO DISTRIBUIR SUS PRODUCTOS", // Mail donde te llegan los datos de cada compra
   asuntoMail: "COMPRA POR TIENDA WEB",
@@ -933,7 +941,8 @@ document.addEventListener("keydown", e => { if (e.key === "Escape") { cerrarMenu
 document.getElementById("menu-categorias").innerHTML = SECCIONES.map(sec =>
   `<button class="opcion" type="button" data-seccion="${sec.id}" onclick="verSeccion('${sec.id}')">${sec.icono} ${sec.nombre}<span class="cuenta">${PRODUCTOS.filter(sec.filtro).length}</span></button>`).join("");
 document.getElementById("pestanas").innerHTML = SECCIONES.map(sec =>
-  `<button class="pestana" type="button" data-seccion="${sec.id}" onclick="seccionActual='${sec.id}'; filtrarCatalogo()">${sec.nombre}</button>`).join("");
+  `<button class="pestana" type="button" data-seccion="${sec.id}" onclick="seccionActual='${sec.id}'; filtrarCatalogo()">${sec.nombre}</button>`).join("") +
+  `<a class="pestana-colec" href="${CONFIG.linkColeccionistas}" target="_blank" rel="noopener">✨ Coleccionistas</a>`;
 document.getElementById("buscador").addEventListener("input", filtrarCatalogo);
 iniciarTextos();
 document.querySelectorAll('[data-red="ig"]').forEach(a => a.href = CONFIG.instagram);
