@@ -68,6 +68,7 @@
   .pestana.activa { background: var(--color-principal); color: #fff; border-color: var(--color-principal); }
   .pestana-colec { position: relative; overflow: hidden; display: inline-flex; align-items: center; gap: 6px; text-decoration: none; border: none; padding: 9px 16px; border-radius: 999px; font-weight: 800; font-size: .92rem; color: #3b2300; background: linear-gradient(135deg, #fde68a, #f59e0b 45%, #fbbf24 70%, #fde68a); box-shadow: 0 0 0 2px #f59e0b55, 0 4px 14px rgba(245,158,11,.55); animation: brilloColec 2.2s ease-in-out infinite; }
   .pestana-colec::after { content: ""; position: absolute; top: 0; left: -60%; width: 40%; height: 100%; background: linear-gradient(100deg, transparent, rgba(255,255,255,.85), transparent); transform: skewX(-20deg); animation: destelloColec 2.6s ease-in-out infinite; }
+  .menu-colec { display: flex; justify-content: center; margin: 14px 4px 4px; padding: 12px 16px; font-size: 1rem; }
   .pestana-colec:hover { transform: translateY(-1px); box-shadow: 0 0 0 3px #f59e0b88, 0 6px 20px rgba(245,158,11,.7); }
   .pestana-colec:focus-visible { outline: 3px solid var(--color-acento); outline-offset: 3px; }
   @keyframes brilloColec { 0%, 100% { box-shadow: 0 0 0 2px #f59e0b55, 0 4px 14px rgba(245,158,11,.45); } 50% { box-shadow: 0 0 0 4px #f59e0b33, 0 4px 22px rgba(245,158,11,.85); } }
@@ -200,6 +201,7 @@
   <button class="opcion" type="button" onclick="cerrarMenu(); irA('inicio')">🏠 Inicio</button>
   <div class="menu-titulo">Productos</div>
   <div id="menu-categorias"></div>
+  <a class="pestana-colec menu-colec" data-red="colec" href="#" target="_blank" rel="noopener" onclick="cerrarMenu()">✨ Coleccionistas</a>
   <div class="menu-titulo">Tu compra</div>
   <button class="opcion" type="button" onclick="cerrarMenu(); irA('carrito')">🛒 Carrito</button>
   <div class="menu-titulo">Seguinos</div>
@@ -947,6 +949,7 @@ document.getElementById("buscador").addEventListener("input", filtrarCatalogo);
 iniciarTextos();
 document.querySelectorAll('[data-red="ig"]').forEach(a => a.href = CONFIG.instagram);
 document.querySelectorAll('[data-red="fb"]').forEach(a => a.href = CONFIG.facebook);
+document.querySelectorAll('[data-red="colec"]').forEach(a => a.href = CONFIG.linkColeccionistas);
 filtrarCatalogo();
 actualizarCarrito();
 </script>
